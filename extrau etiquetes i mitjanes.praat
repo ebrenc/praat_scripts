@@ -1,10 +1,10 @@
 form Select directory and measures to extract
-    sentence directory D:\audiofiles\
+    sentence directory T:\2022_Gemma_Comito\soundingonly\
     sentence initialsubstring 
-    boolean pitch 1
-    boolean formants 1
-    boolean intensity 1
-    boolean voice 1
+    boolean pitch 0
+    boolean formants 0
+    boolean intensity 0
+    boolean voice 0
     boolean get_data_from_empty_labels 1
 endform
 
@@ -140,7 +140,7 @@ for k from 1 to number_files
                 endif
                 if get_data_from_empty_labels = 0
                     if interval_label$ <> ""
-                        fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''u_s''tab$''u_e''tab$''u_d'
+                        fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''u_p''tab$''tab$''tab$''tab$'
                         if pitch = 1
                             fileappend "'directory$'output.txt" 'tab$''f0''tab$''f0_st'
                         endif
@@ -155,7 +155,7 @@ for k from 1 to number_files
                         endif
                     endif
                 else
-                    fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''u_s''tab$''u_e''tab$''u_d'
+                    fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''u_p''tab$''tab$''tab$''tab$'
                     if pitch = 1
                         fileappend "'directory$'output.txt" 'tab$''f0''tab$''f0_st'
                     endif
