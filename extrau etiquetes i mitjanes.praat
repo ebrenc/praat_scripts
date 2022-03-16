@@ -1,10 +1,10 @@
 form Select directory and measures to extract
-    sentence directory T:\2022_Gemma_Comito\soundingonly\
+    sentence directory D:\audiofiles\
     sentence initialsubstring 
-    boolean pitch 0
-    boolean formants 0
-    boolean intensity 0
-    boolean voice 0
+    boolean pitch 1
+    boolean formants 1
+    boolean intensity 1
+    boolean voice 1
     boolean get_data_from_empty_labels 1
 endform
 
