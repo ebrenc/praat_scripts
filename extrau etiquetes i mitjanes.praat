@@ -140,7 +140,7 @@ for k from 1 to number_files
                 endif
                 if get_data_from_empty_labels = 0
                     if interval_label$ <> ""
-                        fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''u_p''tab$''tab$'
+                        fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''point_label$''tab$''u_p''tab$''tab$'
                         if pitch = 1
                             fileappend "'directory$'output.txt" 'tab$''f0''tab$''f0_st'
                         endif
@@ -155,7 +155,7 @@ for k from 1 to number_files
                         endif
                     endif
                 else
-                    fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''u_p''tab$''tab$'
+                    fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''point_label$''tab$''u_p''tab$''tab$'
                     if pitch = 1
                         fileappend "'directory$'output.txt" 'tab$''f0''tab$''f0_st'
                     endif
