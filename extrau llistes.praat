@@ -1,5 +1,4 @@
 # It runs over many files within a folder and extracts all their values into a single file.
-# That file must be manually amended using Excel to get a fully operative data table.
 
 form Select directory and measures to extract
     # Please write the slash at the end of the directory
@@ -26,50 +25,131 @@ elsif variable$ = "pitch" and pitch_measure$ = "ERB"
 endif
 
 filedelete 'directory$''variable$'.txt
-fileappend "'directory$''variable$'.txt" 'directory$''newline$''newline$'
 Create Strings as file list... list 'directory$''initialsubstring$'*.wav
 numberfiles = Get number of strings
+
+if variable$ = "formants"
+    fileappend "'directory$''variable$'.txt" file'tab$'time'tab$'f1'tab$'f2'tab$'f3'newline$'
+else
+    fileappend "'directory$''variable$'.txt" file'tab$'time'tab$''variable$''newline$'
+endif
 
 for k from 1 to numberfiles
     
     select Strings list
     currenttoken$ = Get string... 'k'
     currenttoken$ = currenttoken$ - ".wav"
-    Open long sound file... 'directory$''currenttoken$'.wav
-    select LongSound 'currenttoken$'
+    Read from file... 'directory$''currenttoken$'.wav
+    Read from file... 'directory$''currenttoken$'.textgrid
+    select Sound 'currenttoken$'
     pointS = Get start time
     pointE = Get end time
     length = pointE - pointS
-    View
-    editor LongSound 'currenttoken$'
-    
-    Pitch settings: min_pitch_hz, max_pitch_hz, pitch_measure$, "autocorrelation", "automatic"
-    # Advanced pitch settings: 0, 0, "yes", 15, 0.035, 0.3, 0.06, 1, 0.3
-    # Formant settings: 4000, 3, 0.005, 30, 0.5
-    
-    Select... pointS pointE
     
     if variable$ = "intensity"
-        Show analyses... no no yes no no length
-        values$ = Intensity listing
+        select TextGrid 'currenttoken$'
+        number_of_tiers = Get number of tiers
+        select Sound 'currenttoken$'
+        To Intensity: 100, 0, "yes"
+        number_of_frames = Get number of frames
+        for iframe to number_of_frames
+            time = Get time from frame: iframe
+            intensity = Get value in frame: iframe
+            if intensity != undefined
+                appendInfo: currenttoken$, tab$, fixed$ (time, 6), tab$, fixed$ (intensity, 3)
+                for tier_number to number_of_tiers
+                    select TextGrid 'currenttoken$'
+                    is_interval = Is interval tier... 'tier_number'
+                    if is_interval = 1
+                        tier_name$ = Get tier name... 'tier_number'
+                        if tier_name$ = ""
+                            tier_name$ = "Tier " + string$('tier_number')
+                        endif
+                        interval_number = Get interval at time: tier_number, time
+                        interval_label$ = Get label of interval: tier_number, interval_number
+                        appendInfo: tab$, tier_name$, tab$, interval_label$
+                    endif
+                endfor
+                appendInfo: newline$
+                select Intensity 'currenttoken$'
+            endif
+        endfor
+        select Intensity 'currenttoken$'
+        Remove
     endif
     
     if variable$ = "formants"
-        Show analyses... no no no yes no length
-        values$ = Formant listing
+        select TextGrid 'currenttoken$'
+        number_of_tiers = Get number of tiers
+        select Sound 'currenttoken$'
+        To Formant (burg): 0, 5, 5500, 0.025, 50
+         number_of_frames = Get number of frames
+        for iframe to number_of_frames
+            time = Get time from frame: iframe
+            formant1 = Get value at time: 1, time, "hertz", "linear"
+            formant2 = Get value at time: 2, time, "hertz", "linear"
+            formant3 = Get value at time: 3, time, "hertz", "linear"
+            if formant1 != undefined
+                appendInfo: currenttoken$, tab$, fixed$ (time, 6), tab$, fixed$ (formant1, 3), tab$, fixed$ (formant2, 3), tab$, fixed$ (formant3, 3)
+                for tier_number to number_of_tiers
+                    select TextGrid 'currenttoken$'
+                    is_interval = Is interval tier... 'tier_number'
+                    if is_interval = 1
+                        tier_name$ = Get tier name... 'tier_number'
+                        if tier_name$ = ""
+                            tier_name$ = "Tier " + string$('tier_number')
+                        endif
+                        interval_number = Get interval at time: tier_number, time
+                        interval_label$ = Get label of interval: tier_number, interval_number
+                        appendInfo: tab$, tier_name$, tab$, interval_label$
+                    endif
+                endfor
+                appendInfo: newline$
+                select Formant 'currenttoken$'
+            endif
+        endfor
+        select Formant 'currenttoken$'
+        Remove
     endif
     
     if variable$ = "pitch_hz" or variable$ = "pitch_st" or variable$ = "pitch_erb"
-        Show analyses... no yes no no no length
-        values$ = Pitch listing
+        select TextGrid 'currenttoken$'
+        number_of_tiers = Get number of tiers
+        select Sound 'currenttoken$'
+        To Pitch: 0, min_pitch_hz, max_pitch_hz
+        number_of_frames = Get number of frames
+        for iframe to number_of_frames
+            time = Get time from frame: iframe
+            pitch = Get value in frame: iframe, pitch_measure$
+            if pitch != undefined
+                appendInfo: currenttoken$, tab$, fixed$ (time, 6), tab$, fixed$ (pitch, 3)
+                for tier_number to number_of_tiers
+                    select TextGrid 'currenttoken$'
+                    is_interval = Is interval tier... 'tier_number'
+                    if is_interval = 1
+                        tier_name$ = Get tier name... 'tier_number'
+                        if tier_name$ = ""
+                            tier_name$ = "Tier " + string$('tier_number')
+                        endif
+                        interval_number = Get interval at time: tier_number, time
+                        interval_label$ = Get label of interval: tier_number, interval_number
+                        appendInfo: tab$, tier_name$, tab$, interval_label$
+                    endif
+                endfor
+                appendInfo: newline$
+                select Pitch 'currenttoken$'
+            endif
+        endfor
+        select Pitch 'currenttoken$'
+        Remove
     endif
     
-    endeditor
-    fileappend "'directory$''variable$'.txt" 'currenttoken$''newline$''values$''newline$'
-    select LongSound 'currenttoken$'
+    appendFile: "'directory$''variable$'.txt", info$( )
+    clearinfo
+    select TextGrid 'currenttoken$'
+    plus Sound 'currenttoken$'
     Remove
     
 endfor
-
-select all
+select Strings list
 Remove
