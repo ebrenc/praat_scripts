@@ -11,61 +11,40 @@ form Select directory and measures to extract
         option pitch
         option formants
         option intensity
-    optionmenu pitch_measure: 1
-        option Hertz
-        option semitones re 100 Hz
-        option ERB
     real min_pitch_hz 75
     real max_pitch_hz 800
     boolean extract_textgrid_information 1
-    word specific_tier_to_extract Orthograph
+    word specific_tier_to_extract Phonetics
 endform
-procedure GetTier name$ variable$
-    numberOfTiers = Get number of tiers
-    itier = 1
-    repeat
-        tier$ = Get tier name... itier
-        itier = itier + 1
-    until tier$ = name$ or itier > numberOfTiers
-    if tier$ <> name$
-        'variable$' = 0
-    else
-        'variable$' = itier - 1
-    endif
-endproc
-if variable$ = "pitch" and pitch_measure$ = "Hertz"
-    variable_name$ = "pitch_hz"
-elsif variable$ = "pitch" and pitch_measure$ = "semitones re 100 Hz"
-    variable_name$ = "pitch_st"
-elsif variable$ = "pitch" and pitch_measure$ = "ERB"
-    variable_name$ = "pitch_erb"
-else
-    variable_name$ = variable$
-endif
+
 filedelete 'directory$''variable$'.txt
 Create Strings as file list... list 'directory$''initialsubstring$'*.wav
 numberfiles = Get number of strings
-if variable$ = "formants"
-    fileappend "'directory$''variable_name$'.txt" file'tab$'time'tab$'f1'tab$'f2'tab$'f3'newline$'
-else
-    fileappend "'directory$''variable_name$'.txt" file'tab$'time'tab$''variable_name$''newline$'
-endif
+
 if variable$ = "pitch"
+    fileappend "'directory$''variable$'.txt" file'tab$'time'tab$'pitch_hz'tab$'pitch_st100'tab$'pitch_erb
     object_of_interest$ = "Pitch"
 elsif variable$ = "formants"
+    fileappend "'directory$''variable$'.txt" file'tab$'time'tab$'f1'tab$'f2'tab$'f3
     object_of_interest$ = "Formant"
 elsif variable$ = "intensity"
+    fileappend "'directory$''variable$'.txt" file'tab$'time'tab$'intensity
     object_of_interest$ = "Intensity"
 endif
+
+if specific_tier_to_extract$ != ""
+    fileappend "'directory$''variable$'.txt" 'tab$''specific_tier_to_extract$''newline$'
+else
+    fileappend "'directory$''variable$'.txt" 'newline$'
+endif
+
 for k from 1 to numberfiles
     select Strings list
     currenttoken$ = Get string... 'k'
     currenttoken$ = currenttoken$ - ".wav"
-    Read from file... 'directory$''currenttoken$'.wav
     Read from file... 'directory$''currenttoken$'.textgrid
-    select TextGrid 'currenttoken$'
     number_of_tiers = Get number of tiers
-    select Sound 'currenttoken$'
+    Read from file... 'directory$''currenttoken$'.wav
     if variable$ = "pitch"
         To Pitch: 0, min_pitch_hz, max_pitch_hz
     elsif variable$ = "formants"
@@ -77,8 +56,10 @@ for k from 1 to numberfiles
     for iframe to number_of_frames
         time = Get time from frame: iframe
         if variable$ = "pitch"
-            pitch = Get value in frame: iframe, pitch_measure$
-            current_value = Get value in frame: iframe, pitch_measure$
+            pitch_hz = Get value in frame: iframe, "Hertz"
+            pitch_st100 = Get value in frame: iframe, "semitones re 100 Hz"
+            pitch_erb = Get value in frame: iframe, "ERB"
+            current_value = Get value in frame: iframe, "Hertz"
         elsif variable$ = "formants"
             formant1 = Get value at time: 1, time, "hertz", "linear"
             formant2 = Get value at time: 2, time, "hertz", "linear"
@@ -90,7 +71,7 @@ for k from 1 to numberfiles
         endif
         if current_value != undefined
             if variable$ = "pitch"
-                appendInfo: currenttoken$, tab$, fixed$ (time, 4), tab$, fixed$ (pitch, 4)
+                appendInfo: currenttoken$, tab$, fixed$ (time, 4), tab$, fixed$ (pitch_hz, 4), tab$, fixed$ (pitch_st100, 4), tab$, fixed$ (pitch_erb, 4)
             elsif variable$ = "formants"
                 appendInfo: currenttoken$, tab$, fixed$ (time, 4), tab$, fixed$ (formant1, 4), tab$, fixed$ (formant2, 4), tab$, fixed$ (formant3, 4)
             elsif variable$ = "intensity"
@@ -115,7 +96,7 @@ for k from 1 to numberfiles
                                 tier_name$ = "Tier " + string$('tier_number')
                             endif
                             appendInfo: tab$, tier_name$
-                            4floor_point_number = Get low index from time: tier_number, time
+                            floor_point_number = Get low index from time: tier_number, time
                             ceiling_point_number = Get high index from time: tier_number, time
                             if floor_point_number != 0
                                 floor_point_label$ = Get label of point: tier_number, floor_point_number
@@ -143,12 +124,11 @@ for k from 1 to numberfiles
                             if tier_name$ = specific_tier_to_extract$
                                 interval_number = Get interval at time: tier_number, time
                                 interval_label$ = Get label of interval: tier_number, interval_number
-                                appendInfo: tab$, tier_name$, tab$, interval_label$
+                                appendInfo: tab$, interval_label$
                             endif
                         elsif is_interval = 0
                             tier_name$ = Get tier name... 'tier_number'
                             if tier_name$ = specific_tier_to_extract$
-                                appendInfo: tab$, tier_name$
                                 floor_point_number = Get low index from time: tier_number, time
                                 ceiling_point_number = Get high index from time: tier_number, time
                                 if floor_point_number != 0
@@ -171,12 +151,12 @@ for k from 1 to numberfiles
                     endfor
                 endif
             endif
+            appendInfo: newline$
         endif
-        appendInfo: newline$
         select 'object_of_interest$' 'currenttoken$'
     endfor
     Remove
-    appendFile: "'directory$''variable_name$'.txt", info$( )
+    appendFile: "'directory$''variable$'.txt", info$( )
     clearinfo
     select TextGrid 'currenttoken$'
     plus Sound 'currenttoken$'
