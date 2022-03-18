@@ -149,7 +149,7 @@ for k from 1 to numberfiles
                             tier_name$ = Get tier name... 'tier_number'
                             if tier_name$ = specific_tier_to_extract$
                                 appendInfo: tab$, tier_name$
-                                4floor_point_number = Get low index from time: tier_number, time
+                                floor_point_number = Get low index from time: tier_number, time
                                 ceiling_point_number = Get high index from time: tier_number, time
                                 if floor_point_number != 0
                                     floor_point_label$ = Get label of point: tier_number, floor_point_number
