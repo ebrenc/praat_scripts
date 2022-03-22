@@ -1,5 +1,6 @@
 # It runs over many files within a folder and extracts lists of values (pitch, formants, intensity), one for each time frame.
 # It can extract the entire file or only for label-matching intervals ("specific_labels_to_extract") for a specific tier ("specific_tier_to_extract").
+# If label-matching intervals are specified, a proportion interest of that interval can be requested so that only the time frames occupying that central region will be extracted.
 # It allows the user to extract information from homonime textgrids placed in the same folder.
 # It can extract the coocurrent information for all tiers or just for a specific tier ("specific_coocurrent_tier").
 # For each interval tier, it adds 2 additional columns for each time frame: tier name and interval label.
@@ -20,6 +21,7 @@ form Select directory and measures to extract
     # Please use spaces to separate labels:
     sentence specific_labels_to_extract tS V
     word specific_coocurrent_tier Words
+    positive interval_proportion_to_extract_from 1/3
 endform
 
 specific_labels_to_extract$# = splitByWhitespace$#(specific_labels_to_extract$)
@@ -71,6 +73,14 @@ for k from 1 to numberfiles
                             
                                 interval_start = Get start point: tier_number, interval_number
                                 interval_end = Get end point: tier_number, interval_number
+                                
+                                if interval_proportion_to_extract_from < 1
+                                    interval_duration = interval_end - interval_start
+                                    interval_proportion_duration = interval_duration * interval_proportion_to_extract_from
+                                    interval_center = (interval_start + interval_end) / 2
+                                    interval_start = interval_center - (interval_proportion_duration / 2)
+                                    interval_end = interval_center + (interval_proportion_duration / 2)
+                                endif
                                 
                                 select 'object_of_interest$' 'currenttoken$'
                                 time_step = Get time step
@@ -199,7 +209,7 @@ for k from 1 to numberfiles
         Remove
     else
         number_of_frames = Get number of frames
-		for iframe to number_of_frames
+        for iframe to number_of_frames
             time = Get time from frame: iframe
             if variable$ = "pitch"
                 pitch_hz = Get value in frame: iframe, "Hertz"
