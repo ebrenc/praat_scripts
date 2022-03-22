@@ -6,22 +6,23 @@ form Select directory and measures to extract
     boolean intensity 1
     boolean voice 1
     boolean get_data_from_empty_labels 1
+    positive interval_proportion_to_average_from 1/3
 endform
 
 Create Strings as file list... list 'directory$''initialsubstring$'*.wav
 number_files = Get number of strings
 
 filedelete 'directory$'output.txt
-fileappend "'directory$'output.txt" File'tab$'Tier'tab$'Label'tab$'Time 1'tab$'Time 2'tab$'Duration
+fileappend "'directory$'output.txt" file'tab$'tier'tab$'label'tab$'time1'tab$'time2'tab$'duration
 
 if pitch = 1
-    fileappend "'directory$'output.txt" 'tab$'Hz'tab$'st
+    fileappend "'directory$'output.txt" 'tab$'hz'tab$'st
 endif
 if formants = 1
     fileappend "'directory$'output.txt" 'tab$'f1'tab$'f2'tab$'f3
 endif
 if intensity = 1
-    fileappend "'directory$'output.txt" 'tab$'dB
+    fileappend "'directory$'output.txt" 'tab$'db
 endif
 if voice = 1
     fileappend "'directory$'output.txt" 'tab$'jitter'tab$'shimmer
@@ -63,6 +64,14 @@ for k from 1 to number_files
                 u_s = Get start point... 'b' 'a'
                 u_e = Get end point... 'b' 'a'
                 u_d = u_e - u_s
+                original_u_s = u_s
+                original_u_e = u_e
+                if interval_proportion_to_average_from < 1
+                    interval_proportion_duration = u_d * interval_proportion_to_average_from
+                    u_c = (u_s + u_e) / 2
+                    u_s = u_c - (interval_proportion_duration / 2)
+                    u_e = u_c + (interval_proportion_duration / 2)
+                endif
                 if pitch = 1
                     select Pitch 'object_name$'
                     f0 = Get mean: 'u_s', 'u_e', "Hertz"
@@ -87,7 +96,7 @@ for k from 1 to number_files
                 endif
                 if get_data_from_empty_labels = 0
                     if interval_label$ <> ""
-                        fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''u_s''tab$''u_e''tab$''u_d'
+                        fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''original_u_s''tab$''original_u_e''tab$''u_d'
                         if pitch = 1
                             fileappend "'directory$'output.txt" 'tab$''f0''tab$''f0_st'
                         endif
@@ -102,7 +111,7 @@ for k from 1 to number_files
                         endif
                     endif
                 else
-                    fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''u_s''tab$''u_e''tab$''u_d'
+                    fileappend "'directory$'output.txt" 'newline$''object_name$''tab$''tier$''tab$''interval_label$''tab$''original_u_s''tab$''original_u_e''tab$''u_d'
                     if pitch = 1
                         fileappend "'directory$'output.txt" 'tab$''f0''tab$''f0_st'
                     endif
