@@ -99,11 +99,11 @@ for k from 1 to numberfiles
                                     endif
                                     if current_value != undefined
                                         if variable$ = "pitch"
-                                            appendInfo: currenttoken$, tab$, fixed$(time, 4), tab$, fixed$(pitch_hz, 4), tab$, fixed$(pitch_st100, 4), tab$, fixed$(pitch_erb, 4), tab$, interval_label$
+                                            appendInfo: currenttoken$, tab$, fixed$(time, 4), tab$, fixed$(pitch_hz, 4), tab$, fixed$(pitch_st100, 4), tab$, fixed$(pitch_erb, 4), tab$, interval_label$, tab$, fixed$(interval_number, 0)
                                         elsif variable$ = "formants"
-                                            appendInfo: currenttoken$, tab$, fixed$(time, 4), tab$, fixed$(formant1, 4), tab$, fixed$(formant2, 4), tab$, fixed$(formant3, 4), tab$, interval_label$
+                                            appendInfo: currenttoken$, tab$, fixed$(time, 4), tab$, fixed$(formant1, 4), tab$, fixed$(formant2, 4), tab$, fixed$(formant3, 4), tab$, interval_label$, tab$, fixed$(interval_number, 0)
                                         elsif variable$ = "intensity"
-                                            appendInfo: currenttoken$, tab$, fixed$(time, 4), tab$, fixed$(intensity, 4), tab$, interval_label$
+                                            appendInfo: currenttoken$, tab$, fixed$(time, 4), tab$, fixed$(intensity, 4), tab$, interval_label$, tab$, fixed$(interval_number, 0)
                                         endif
                                         if extract_textgrid_information = 1
                                             if specific_coocurrent_tier$ = ""
@@ -235,7 +235,7 @@ for k from 1 to numberfiles
                                 endif
                                 interval_number = Get interval at time: tier_number, time
                                 interval_label$ = Get label of interval: tier_number, interval_number
-                                appendInfo: tab$, tier_name$, tab$, interval_label$
+                                appendInfo: tab$, tier_name$, tab$, interval_label$, tab$, fixed$(interval_number, 0)
                             elsif is_interval = 0
                                 tier_name$ = Get tier name... 'tier_number'
                                 if tier_name$ = ""
@@ -270,7 +270,7 @@ for k from 1 to numberfiles
                                 if tier_name$ = specific_tier_to_extract$
                                     interval_number = Get interval at time: tier_number, time
                                     interval_label$ = Get label of interval: tier_number, interval_number
-                                    appendInfo: tab$, interval_label$
+                                    appendInfo: tab$, interval_label$, tab$, fixed$(interval_number, 0)
                                 endif
                             elsif is_interval = 0
                                 tier_name$ = Get tier name... 'tier_number'
