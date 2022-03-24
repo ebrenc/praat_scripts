@@ -21,6 +21,7 @@ form Select directory and measures to extract
     # Please use spaces to separate labels:
     sentence specific_labels_to_extract tS V
     word specific_coocurrent_tier Words
+    # Please specify a number between 0 and or 1
     positive interval_proportion_to_extract_from 1/3
 endform
 
@@ -31,13 +32,13 @@ Create Strings as file list... list 'directory$''initialsubstring$'*.wav
 numberfiles = Get number of strings
 
 if variable$ = "pitch"
-    fileappend "'directory$''variable$'.txt" file'tab$'time'tab$'pitch_hz'tab$'pitch_st100'tab$'pitch_erb'newline$'
+    fileappend "'directory$''variable$''initialsubstring$'.txt" file'tab$'time'tab$'pitch_hz'tab$'pitch_st100'tab$'pitch_erb'newline$'
     object_of_interest$ = "Pitch"
 elsif variable$ = "formants"
-    fileappend "'directory$''variable$'.txt" file'tab$'time'tab$'f1'tab$'f2'tab$'f3'newline$'
+    fileappend "'directory$''variable$''initialsubstring$'.txt" file'tab$'time'tab$'f1'tab$'f2'tab$'f3'newline$'
     object_of_interest$ = "Formant"
 elsif variable$ = "intensity"
-    fileappend "'directory$''variable$'.txt" file'tab$'time'tab$'intensity'newline$'
+    fileappend "'directory$''variable$''initialsubstring$'.txt" file'tab$'time'tab$'intensity'newline$'
     object_of_interest$ = "Intensity"
 endif
 
@@ -45,9 +46,17 @@ for k from 1 to numberfiles
     select Strings list
     currenttoken$ = Get string... 'k'
     currenttoken$ = currenttoken$ - ".wav"
-    Read from file... 'directory$''currenttoken$'.textgrid
-    number_of_tiers = Get number of tiers
+    if extract_textgrid_information = 1
+        Read from file... 'directory$''currenttoken$'.textgrid
+        number_of_tiers = Get number of tiers
+    endif
     Read from file... 'directory$''currenttoken$'.wav
+    currenttoken$ = replace$ (currenttoken$, " ", "_", 0)
+    currenttoken$ = replace$ (currenttoken$, ",", "_", 0)
+    currenttoken$ = replace$ (currenttoken$, "'", "_", 0)
+    currenttoken$ = replace$ (currenttoken$, ".", "_", 0)
+    currenttoken$ = replace$ (currenttoken$, "(", "_", 0)
+    currenttoken$ = replace$ (currenttoken$, ")", "_", 0)
     if variable$ = "pitch"
         To Pitch: 0, min_pitch_hz, max_pitch_hz
     elsif variable$ = "formants"
@@ -195,7 +204,7 @@ for k from 1 to numberfiles
                                             endif
                                         endif
                                         appendInfo: newline$
-                                        appendFile: "'directory$''variable$'.txt", info$( )
+                                        appendFile: "'directory$''variable$''initialsubstring$'.txt", info$( )
                                         clearinfo
                                     endif
                                 endfor
@@ -312,11 +321,13 @@ for k from 1 to numberfiles
             select 'object_of_interest$' 'currenttoken$'
         endfor
         Remove
-        appendFile: "'directory$''variable$'.txt", info$( )
+        appendFile: "'directory$''variable$''initialsubstring$'.txt", info$( )
     endif
     clearinfo
-    select TextGrid 'currenttoken$'
-    plus Sound 'currenttoken$'
+    select Sound 'currenttoken$'
+    if extract_textgrid_information = 1
+        plus TextGrid 'currenttoken$'
+    endif
     Remove
 endfor
 select Strings list
