@@ -1,7 +1,7 @@
 form Input directory name with final slash
     comment Properties
-        sentence directory D:\Feina\Núria Sagarra\jv754 cut sentences\S\
-        sentence output_directory D:\Feina\Núria Sagarra\jv754 cut sentences\S_mono\
+        sentence directory D:\audiofiles\
+        sentence output_directory D:\audiofiles_mono\
         sentence initial_substring 
         sentence final_substring 
 endform
