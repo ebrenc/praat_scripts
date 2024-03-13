@@ -31,6 +31,19 @@ for k from 1 to numberfiles
         number_of_intervals = Get number of intervals... 'i'
         for j from 1 to 'number_of_intervals'
             label$ = Get label of interval... 'i' 'j'
+
+            # trim edge spaces from labels, got from https://maetshju.gitlab.io/praat-cookbook/string-operations.html
+            procedure strip: .s$
+                .len = length(.s$)
+                .lindex = index_regex(.s$, "[^ \n\t\r]")
+                .beginning$ = right$(.s$, .len - .lindex + 1)
+                .rindex = index_regex(.beginning$, "[ \n\t\r]*$")
+                .stripped$ = left$(.beginning$, .rindex-1)
+            endproc
+            
+            @strip: label$
+            label$ = strip.stripped$
+
             if label$ != ""
                 
                 # Get time values for start and end of the interval
